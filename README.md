@@ -39,11 +39,12 @@ end)
     "Current amount " .. count
     </Button>
 
-    @if count % 2 == 0 then
-        <Text>Secret Message</Text>
-    @else
-        <Text>Nothing to see here
-    @end
+    <Text>
+        @if count % 2 == 0 then return "Secret Message"
+        @else return "Nothing to see here" end
+        -- Can use the ternary too
+        -- count % 2 == 0 and "Secret message" or "Nothing to see here"
+    </Text>
 </Root>
 ```
 
