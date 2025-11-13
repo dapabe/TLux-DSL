@@ -1,10 +1,30 @@
 
 # DLux(Deluxe) Lang
+
+##  Table of contents
+-   What is DLang?
+-   Why it exists?
+-   How to install
+-   Clone repo setup
+-   Preview
+---
 Long term: Design for Lua user experiences
 
 A superset of Lua based on XML-like component syntax and FrontMatter declarations specialized for File-Based-Routing.
 
 DLux is a meta-framework used on top of the Love2D framework with native component primitives, heavely inspired by the Astro framework and React Native.
+
+
+
+##  Clone repo setup
+
+Requirements:
+-   Lua 5.4
+-   Luarocks
+
+Cmd: `luarocks install luyoga --tree ./libs`
+
+##  Preview
 
 To use this programming language first you will have create and respect this directory structure:
 

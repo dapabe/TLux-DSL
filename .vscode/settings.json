@@ -4,8 +4,11 @@
         "love.filesystem.load": "loadfile"
     },
     "Lua.workspace.library": [
-        "${3rd}/love2d/library"
+        "${3rd}/love2d/library",
+        "./libs/share/lua/5.4",
+        "./libs/lib/lua/5.4"
     ],
+    "Lua.hint.enable": true,
     "Lua.format.enable": true,
     "Lua.diagnostics.globals": [
     ],
