@@ -1,6 +1,6 @@
 
 ---@class ButtonPrimitive: TextPrimitive
-local Button = require("Text.primitive"):extend()
+local Button = require("Text_primitive"):extend()
 
 Button.pressed = false
 Button.hovered = false
@@ -39,6 +39,7 @@ function Button:new(callback, props)
         self[key] = value
         ::continue::
     end
+    return self
 end
 
 function Button:_update()

@@ -1,7 +1,7 @@
 
 ---@class ItemPrimitive: ElementPrimitive
 ---@field selectable boolean
-local Item = require("tlux.components.primitives.Element.primitive"):extend()
+local Item = require("Element_primitive"):extend()
 
 function Item:__tostring()
     return "ItemPrimitive"

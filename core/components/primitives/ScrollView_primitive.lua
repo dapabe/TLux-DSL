@@ -1,12 +1,12 @@
+local Yoga = require("luyoga")
 
----@class ScrollViewPrimitive: ViewPrimitive
-local ScrollView = require("View.primitive")
+---@class DLux.ScrollViewPrimitive: ViewPrimitive
+local ScrollView = require("View_primitive"):extend()
 
 ScrollView.scrollY = 0
 ScrollView.scrollSpeed = 60
 ScrollView.isDragging = false
 ScrollView.dragOffset = 0
-ScrollView.accumulatedHeight = 0
 
 function ScrollView:isMouseInside(mx, my)
         return mx >= self.x and mx <= self.x + self.w
@@ -67,6 +67,14 @@ function ScrollView:mouseReleased(mx, my, btn)
     self.isDragging = false
 end
 
+function ScrollView:_updateLayout()
+    self._updateLayout(self)
+
+    -- Clamp
+    local maxScroll = math.max(0, self.accumulatedHeight - self.h)
+    if self.scrollY > maxScroll then self.scrollY = maxScroll end
+end
+
 function ScrollView:_update(dt, mx, my, wheelY)
     local maxScroll = self:getMaxScroll()
     if maxScroll == 0 then
@@ -114,6 +122,17 @@ function ScrollView:_draw(drawCallback)
         love.graphics.rectangle("fill", sb.x, sb.y, sb.w, sb.h, 4, 4)
         love.graphics.setColor(1, 1, 1)
     end
+end
+
+
+---@param props DLux.ScrollViewPrimitive
+function ScrollView:new(props)
+
+    self.scrollSpeed = props.scrollSpeed
+    self.UINode = Yoga.Node.new()
+
+    if props.children then self:setChildren(props.children) end
+    return self
 end
 
 return ScrollView
