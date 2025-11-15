@@ -1,4 +1,3 @@
--- require("tlux.utils.__dirname")
 require("debug")
 
 function love.conf(t)

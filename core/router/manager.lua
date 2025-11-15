@@ -1,4 +1,3 @@
-local Yoga = require("luyoga")
 
 ---@alias RouteEvent "enter" | "leave" | "pause" | "resume" |"push" | string
 
@@ -50,25 +49,11 @@ local function exclude(t1, t2)
 	return t
 end
 
----@class DLux.FileRoute
----@field routeNode luyoga.Node
----@field emit fun(self: self, event: RouteEvent, ...)
----@field enter fun(self: self, next: DLux.FileRoute, ...)
----@field push fun(self: self, next: DLux.FileRoute, ...)
-
----@class RouterManager: DLux.FileRoute
+---@class RouterManager
+---@field _routes DLux.FileRoute[]
+---@field rootNode luyoga.Node
 local Manager = {}
 Manager.__index = Manager
-
----@protected
----@type DLux.FileRoute[]
-Manager.__routes = {}
---- Root Yoga node for the whole app
-Manager.rootNode = Yoga.Node.new()
-
--- Position root at (0,0)
-Manager.rootNode.style:setFlexGrow(1)
-Manager.rootNode.style:setFlexDirection(Yoga.Enums.FlexDirection.Column)
 
 -------------------------------------------------------------------
 -- INTERNAL
@@ -76,14 +61,15 @@ Manager.rootNode.style:setFlexDirection(Yoga.Enums.FlexDirection.Column)
 
 ---@param route DLux.FileRoute
 function Manager:_mountRoute(route)
-	assert(route and route.routeNode, "[RouteManager] Route requires luyoga node")
+	assert(route and route.routeNode, "[RouteManager] ERROR(_mountRoute) route requires luyoga node")
 	self.rootNode:removeAllChildren()
-	self.rootNode:insertChild(route.routeNode, 1)
+	self.rootNode:insertChild(route.routeNode.UINode, 1)
 	self.rootNode:calculateLayout(0, 0, Yoga.Enums.Direction.LTR)
 end
 
+---@param event RouteEvent
 function Manager:emit(event, ...)
-    local route = self.__routes[#self.__routes]
+    local route = self._routes[#self._routes]
     if route and route[event] then route[event](route, ...) end
 end
 
@@ -95,10 +81,11 @@ end
 ---@param ... any[]
 function Manager:enter(next, ...)
 	assert(next, "[RouteManager] ERROR(enter): route cannot be nil")
-    local previous = self.__routes[#self.__routes]
+    local previous = self._routes[#self._routes]
+	print(tostring(next))
 
     self:emit("leave", next, ...)
-    self.__routes[#self.__routes] = next
+    self._routes[#self._routes] = next
 
 	self:_mountRoute(next)
 
@@ -109,10 +96,10 @@ end
 ---@param ... any[]
 function Manager:push(next, ...)
 	assert(next, "[RouteManager] ERROR(push): route cannot be nil")
-    local previous = self.__routes[#self.__routes]
+    local previous = self._routes[#self._routes]
 
     self:emit("pause", next, ...)
-    self.__routes[#self.__routes+1] = next
+    self._routes[#self._routes+1] = next
 
    	self:_mountRoute(next)
 
@@ -121,12 +108,12 @@ end
 
 --- Deletes the current route from the stack and returns to the previous one
 function Manager:pop(...)
-    local previous = self.__routes[#self.__routes]
-    local next = self.__routes[#self.__routes - 1]
+    local previous = self._routes[#self._routes]
+    local next = self._routes[#self._routes - 1]
 	assert(next, "[RouteManager] ERROR(pop): no more routes in stack")
     
 	self:emit("leave", next, ...)
-    self.__routes[#self.__routes] =  nil
+    self._routes[#self._routes] =  nil
 
 	self:_mountRoute(next)
 
@@ -137,7 +124,7 @@ end
 -- Love2D CALLBACK HOOKING
 -------------------------------------------------------------------
 
----@param options {include: string[], exclude: string[]}
+---@param options? {include: string[], exclude: string[]}
 function Manager:hook(options)
     options = options or {}
     local callbacks = options.include or loveCallbacks
@@ -152,10 +139,29 @@ function Manager:hook(options)
 end
 
 -------------------------------------------------------------------
--- PUBLIC: CREATE ROUTER
+-- PUBLIC
 -------------------------------------------------------------------
+
+---@param dt number
+function Manager:update(dt)
+	local r = self._routes[#self._routes]
+	if r then r:update(dt) end
+end
+
+function Manager:draw()
+	local r = self._routes[#self._routes]
+	if r then r:draw() end
+end
+
 function Manager.new()
-    return setmetatable({{}}, Manager)
+    local o = setmetatable({}, Manager)
+	o._routes = {}
+	
+	o.rootNode = Yoga.Node.new()
+	o.rootNode.style:setFlexGrow(1)
+	o.rootNode.style:setFlexDirection(Yoga.Enums.FlexDirection.Column)
+
+	return o
 end
 
 return Manager
