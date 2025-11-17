@@ -1,5 +1,4 @@
 local Element = require("Element_primitive")
-local applyStyleProps = require("applyStyleProps")
 
 ---@class DLux.RectPrimitiveProps: DLux.ElementPrimitive
 
@@ -48,7 +47,7 @@ function Rect:draw()
     if self.debugOutline then
         love.graphics.setColor(0, 1, 0)
         love.graphics.setLineWidth(2)
-        love.graphics.rectangle("line", l:getLeft(), l:getTop(), l:getWidth(), l:getWidth())
+        love.graphics.rectangle("line", l:getLeft(), l:getTop(), l:getWidth(), l:getHeight())
     end
 end
 
@@ -56,6 +55,7 @@ end
 function Rect:new(props)
     local o = Rect.super.new(self, props)
     o._ElementName = "RectPrimitive"
+
     return o
 end
 

@@ -1,4 +1,4 @@
-local applyStyleProps = require "applyStyleProps"
+local applyNodeProps = require "applyNodeProps"
 
 ---@class CursorMap
 ---@field hover love.Cursor
@@ -121,7 +121,7 @@ function Element:new(props)
     o._ElementName = "ElementPrimitive"
     o.UINode = Yoga.Node.new()
     props = props or {}
-    applyStyleProps(o.UINode.style, props)
+    applyNodeProps(o.UINode.style, props)
     o.debugOutline = props.debugOutline or false
     o.bgColor = props.bgColor or { 0, 0, 0, 0 }
     o.borderRadius = props.borderRadius or { 0, 0 }

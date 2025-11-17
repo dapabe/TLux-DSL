@@ -1,10 +1,8 @@
-local Rect = require("Rect_primitive")
-
 ---@class DLux.ViewPrimitiveProps: DLux.RectPrimitive
 ---@field children? DLux.RectPrimitive[] # [INTERNAL]
 
 ---@class DLux.ViewPrimitive: DLux.ViewPrimitiveProps
-local View = Rect:_extend()
+local View = require("Rect_primitive"):_extend()
 
 --------------------------------------------------------------------
 -- OVERRIDES
@@ -17,7 +15,7 @@ function View:_hitTest(mx, my)
         if h then return h end
     end
 
-    return Rect._hitTest(self, mx, my)
+    return View.super._hitTest(self, mx, my)
 end
 
 --------------------------------------------------------------------

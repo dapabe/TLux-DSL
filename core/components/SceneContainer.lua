@@ -1,7 +1,6 @@
-
 local View = require("View_primitive")
 local Rect = require("Rect_primitive")
-local applyStyleProps = require("applyStyleProps")
+local applyNodeProps = require("applyNodeProps")
 
 ---@class SceneContainer: DLux.ViewPrimitive
 ---@field offsetX number
@@ -14,7 +13,10 @@ function SceneContainer:new(screen)
     ---@class SceneContainer
     local base = View.new(self, {
         position = "absolute",
-        left = 0, top = 0, right = 0, bottom = 0
+        left = 0,
+        top = 0,
+        right = 0,
+        bottom = 0
     })
     base.x = 0
     base.y = 0
@@ -30,13 +32,13 @@ end
 ---@param x number
 function SceneContainer:setX(x)
     self.offsetX = x
-    applyStyleProps(self.UINode.style, {left = x})
+    applyNodeProps(self.UINode.style, { left = x })
 end
 
 ---@param v number
 function SceneContainer:setOpacity(v)
     self.opacity = v
-    applyStyleProps(self.UINode.style, {opacity = v})
+    applyNodeProps(self.UINode.style, { opacity = v })
 end
 
 function SceneContainer:update(dt)

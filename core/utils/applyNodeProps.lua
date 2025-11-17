@@ -8,12 +8,12 @@ local FLEX_DIR_MAP = {
 }
 
 local FLEX_JUSTIFY_MAP = {
-    start = Yoga.Enums.Justify.FlexStart,
-    center = Yoga.Enums.Justify.Center,
-    ["end"]  = Yoga.Enums.Justify.FlexEnd,
+    start   = Yoga.Enums.Justify.FlexStart,
+    center  = Yoga.Enums.Justify.Center,
+    ["end"] = Yoga.Enums.Justify.FlexEnd,
     between = Yoga.Enums.Justify.SpaceBetween,
-    around = Yoga.Enums.Justify.SpaceAround,
-    evenly = Yoga.Enums.Justify.SpaceEvenly
+    around  = Yoga.Enums.Justify.SpaceAround,
+    evenly  = Yoga.Enums.Justify.SpaceEvenly
 }
 
 local OVERFLOW_MAP = {
@@ -35,15 +35,15 @@ local ALIGN_MAP = {
 
 ---@type table<string, fun(s: luyoga.Style, v: any)>
 local STYLE_MAP = {
-    w = function (s, v) s:setWidth(v) end,
-    h = function (s, v) s:setHeight(v) end,
+    w = function(s, v) s:setWidth(v) end,
+    h = function(s, v) s:setHeight(v) end,
     flexGrow = function(s, v) s:setFlexGrow(v) end,
     flexShrink = function(s, v) s:setFlexShrink(v) end,
     selfAlign = function(s, v) s:setAlignSelf(ALIGN_MAP[v]) end,
     flexJustify = function(s, v) s:setJustifyContent(FLEX_JUSTIFY_MAP[v]) end,
-    flexDir = function (s, v) s:setFlexDirection(FLEX_DIR_MAP[v]) end,
-    overflow = function (s, v) s:setOverflow(OVERFLOW_MAP[v]) end,
-    padding = function (s, v)
+    flexDir = function(s, v) s:setFlexDirection(FLEX_DIR_MAP[v]) end,
+    overflow = function(s, v) s:setOverflow(OVERFLOW_MAP[v]) end,
+    padding = function(s, v)
         if type(v) == "number" then
             s:setPadding(Yoga.Enums.Edge.All, v)
         elseif #v == 2 then
@@ -56,7 +56,7 @@ local STYLE_MAP = {
             s:setPadding(Yoga.Enums.Edge.Left, v[4] or 0)
         end
     end,
-    margin = function (s, v)
+    margin = function(s, v)
         if type(v) == "number" then
             s:setMargin(Yoga.Enums.Edge.All, v)
         elseif #v == 2 then
@@ -74,7 +74,7 @@ local STYLE_MAP = {
 ---@generic ComponentProps
 ---@param style luyoga.Style
 ---@param props ComponentProps
-local function applyStyleProps(style, props)
+local function applyNodeProps(style, props)
     for k, v in pairs(props) do
         local setter = STYLE_MAP[k]
         if setter then
@@ -89,4 +89,4 @@ local function applyStyleProps(style, props)
     end
 end
 
-return applyStyleProps
+return applyNodeProps
