@@ -1,4 +1,3 @@
-
 local SceneContainer = require("core.components.SceneContainer")
 
 ---@alias RouteEvent "enter" | "leave" | "pause" | "resume" |"push" | string
@@ -42,19 +41,20 @@ local loveCallbacks = {
 ---@param duration number
 ---@param callback function
 ---@param finish? function
----@return table
+---@return fun(dt: number): boolean
 local function animate(duration, callback, finish)
 	local t = 0
-    local anim = {}
 
-    function anim:update(dt)
-        t = t + dt
-        local k = math.min(t/duration, 1)
-        callback(k)
-        if k == 1 and finish then finish(); return true end
-    end
+	local function update(dt)
+		t = t + dt
+		local k = math.min(t / duration, 1)
+		callback(k)
+		if k == 1 and finish then
+			finish(); return true
+		end
+	end
 
-    return anim
+	return update
 end
 
 -- returns a list of all the items in t1 that aren't in t2
@@ -91,13 +91,40 @@ Manager.__index = Manager
 ---@param route DLux.FileRoute
 ---@return DLux.FileRoute
 function Manager:_mountRoute(route)
-	assert(route and route.routeNode, "[RouteManager] ERROR(_mountRoute) route requires luyoga node")
+	if route.new then route = route:new() end
+
+	assert(route.routeNode,
+		("[RouterManager] ERROR(_mountRoute) <%s> requires luyoga node"):format(route.routeName))
 	self.rootNode:removeAllChildren()
 	self.rootNode:insertChild(route.routeNode.UINode, 1)
-	self.rootNode:calculateLayout(self.rootNode.layout:getWidth(), self.rootNode.layout:getHeight(), Yoga.Enums.Direction.LTR)
+	self.rootNode:calculateLayout(self.rootNode.layout:getWidth(), self.rootNode.layout:getHeight(),
+		Yoga.Enums.Direction.LTR)
 	return route
 end
 
+function Manager:refresh(...)
+	local top = self:_getTopRoute()
+	if not top then return end
+
+	local cls = top.class or top.__index or top.super or nil
+
+	assert(cls, ("[RouterManager] ERROR(refresh): <%s> has no class reference"):format(top.routeName))
+
+	local previous = top
+
+	-- Reinstanciar
+	local newInstance = self:_mountRoute(cls)
+
+	-- Mantener el tipo para llamadas posteriores
+	newInstance.class = cls
+
+	self._routes[#self._routes] = newInstance
+
+	-- Llamar eventos de refresco
+	if newInstance.enter then newInstance:enter(previous, ...) end
+
+	print("[RouterManager] Refreshed: ", newInstance.routeName)
+end
 
 function Manager:_getTopRoute()
 	return self._routes[#self._routes]
@@ -105,8 +132,8 @@ end
 
 ---@param event RouteEvent
 function Manager:emit(event, ...)
-    local route = self:_getTopRoute()
-    if route and route[event] then route[event](route, ...) end
+	local route = self:_getTopRoute()
+	if route and route[event] then route[event](route, ...) end
 end
 
 -------------------------------------------------------------------
@@ -117,42 +144,44 @@ end
 -- ---@param animation AnimMode
 ---@param ... any[]
 function Manager:enter(next, ...)
-	assert(next, "[RouteManager] ERROR(enter): route cannot be nil")
-    local previous = self._routes[#self._routes]
-	
-    self:emit("leave", next, ...)
-    self._routes[#self._routes] = self:_mountRoute(next)
+	assert(next, "[RouterManager] ERROR(enter): route cannot be nil")
+	local previous = self:_getTopRoute()
 
-    self:emit("enter", previous, ...)
+	self:emit("leave", next, ...)
+	self._routes[#self._routes] = self:_mountRoute(next)
+	self._routes[#self._routes].class = next
+
+	self:emit("enter", previous, ...)
 end
 
 ---@param next DLux.FileRoute
 ---@param mode AnimMode
 ---@param ... any[]
 function Manager:push(next, mode, ...)
-	assert(next, "[RouteManager] ERROR(push): route cannot be nil")
-    local previous = self:_getTopRoute()
+	assert(next, ("[RouterManager] ERROR(push): <%s> cannot be nil"):format(next.routeName))
+	local previous = self:_getTopRoute()
 
-    self:emit("pause", next, ...)
-    self._routes[#self._routes+1] = self:_mountRoute(next)
+	self:emit("pause", next, ...)
+	self._routes[#self._routes + 1] = self:_mountRoute(next)
+	self._routes[#self._routes].class = next
 
-    self:emit("enter", previous, ...)
+	self:emit("enter", previous, ...)
 end
 
 --- Deletes the current route from the stack and returns to the previous one
 function Manager:pop(...)
-    local next = self._routes[#self._routes - 1]
+	local next = self._routes[#self._routes - 1]
 	if not next then
-		print("[RouteManager] ERROR(pop): no more routes in stack")
+		print("[RouterManager] ERROR(pop): no more routes in stack")
 		return
 	end
-    local previous = self:_getTopRoute()
+	local previous = self:_getTopRoute()
 
 
 	self:emit("leave", next, ...)
-    self._routes[#self._routes] =  nil
+	self._routes[#self._routes] = nil
 
-    self:emit("resume", previous, ...)
+	self:emit("resume", previous, ...)
 end
 
 -------------------------------------------------------------------
@@ -169,16 +198,16 @@ end
 
 ---@param options? {include: string[], exclude: string[]}
 function Manager:hook(options)
-    options = options or {}
-    local callbacks = options.include or loveCallbacks
-    if options.exclude then callbacks = exclude(callbacks, options.exclude) end
-    for _, callbackName in ipairs(callbacks) do
-        local oldCallback = love[callbackName]
-        love[callbackName] = function (...)
-            if oldCallback then oldCallback(...) end
-            self:emit(callbackName, ...)
-        end
-    end
+	options = options or {}
+	local callbacks = options.include or loveCallbacks
+	if options.exclude then callbacks = exclude(callbacks, options.exclude) end
+	for _, callbackName in ipairs(callbacks) do
+		local oldCallback = love[callbackName]
+		love[callbackName] = function(...)
+			if oldCallback then oldCallback(...) end
+			self:emit(callbackName, ...)
+		end
+	end
 end
 
 -------------------------------------------------------------------
@@ -233,7 +262,7 @@ function Manager:initYoga(width, height)
 end
 
 function Router.new()
-    local o = setmetatable({}, Manager)
+	local o = setmetatable({}, Manager)
 	o._routes = {}
 	o._tabs = {}
 	return o

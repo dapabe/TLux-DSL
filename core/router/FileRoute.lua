@@ -1,29 +1,19 @@
-local View = require "View_primitive"
-
 ---@class DLux.FileRoute
+---@field super self
 local FileRoute = {}
 FileRoute.__index = FileRoute
 
 function FileRoute:new()
-    local o = setmetatable({}, FileRoute)
-    o.routeNode = View:new({flexGrow = 1})
-    printTable(o.routeNode)
+    local o = setmetatable({}, self)
+    o.routeNode = GUI.View:new({ flexGrow = 1 })
     return o
 end
 
-function FileRoute:_extend()
-    local cls = {}
-    for k, v in pairs(self) do
-        if k:find("__") == 1 then cls[k] = v end
-    end
+function FileRoute:extend()
+    local cls = setmetatable({}, self)
     cls.__index = cls
     cls.super = self
-
-    return setmetatable(cls, self):new()
-end
-
-function FileRoute:__call(...)
-    return setmetatable({}, self):new()
+    return cls
 end
 
 function FileRoute:update(dt)

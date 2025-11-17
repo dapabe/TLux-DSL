@@ -1,20 +1,16 @@
-local View = require("View_primitive")
+local Route = FileRoute:extend()
+Route.routeName = "Profile"
 
-local Profile = FileRoute:_extend()
-Profile.routeName = "Profile"
+function Route:new()
+    local o = Route.super.new(self)
+    local Header = GUI.View:new({ flexGrow = 1, bgColor = { 0, 0, 1 } })
 
-
-function Profile:new()
-    local Header = View:new({flexGrow=1, bgColor={0,0,1}})
-
-    -- self.routeNode:addChild(Header)
-    return self
+    o.routeNode:addChild(Header)
+    return o
 end
 
-function Profile:keypressed(key)
+function Route:keypressed(key)
     if key == "a" then RouterManager:pop("slide") end
 end
 
-
-
-return Profile:new()
+return Route

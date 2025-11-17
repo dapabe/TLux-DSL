@@ -38,7 +38,7 @@ end
 
 ---@param child DLux.RectPrimitive
 function View:removeChild(child)
-    for i,v in ipairs(self.children) do
+    for i, v in ipairs(self.children) do
         if v == child then
             self.UINode:removeChild(child.UINode)
             table.remove(self.children, i)
@@ -48,7 +48,7 @@ function View:removeChild(child)
 end
 
 function View:clearChildren()
-    for _,child in ipairs(self.children) do
+    for _, child in ipairs(self.children) do
         self.UINode:removeChild(child.UINode)
     end
     self.children = {}
@@ -59,7 +59,7 @@ end
 --------------------------------------------------------------------
 ---@param dt number
 function View:update(dt)
-    for _,child in ipairs(self.children) do
+    for _, child in ipairs(self.children) do
         if child.update then
             child:update(dt)
         end
@@ -67,18 +67,18 @@ function View:update(dt)
 end
 
 function View:draw()
-    Rect.draw(self)
+    self.super.draw(self)
 
     -- Draw children
     local l = self.UINode.layout
 
     love.graphics.push()
-        
-        love.graphics.translate(l:getLeft(), l:getTop())
 
-        for _, child in ipairs(self.children) do
-            child:draw()
-        end
+    love.graphics.translate(l:getLeft(), l:getTop())
+
+    for _, child in ipairs(self.children) do
+        child:draw()
+    end
 
     love.graphics.pop()
 end
@@ -86,7 +86,7 @@ end
 ---@param props? DLux.ViewPrimitiveProps
 function View:new(props)
     ---@class DLux.ViewPrimitive
-    local o = Rect.new(self, props)
+    local o = View.super.new(self, props)
     o._ElementName = "ViewPrimitive"
     o.children = {}
     return o

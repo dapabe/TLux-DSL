@@ -1,5 +1,3 @@
-
-
 ---@class MapCursors
 ---@field hand love.Cursor
 
@@ -18,6 +16,7 @@ end
 function InputManager:clear()
     self.hoverables = {}
 end
+
 ---@param mx number
 ---@param my number
 function InputManager:mousemoved(mx, my)
@@ -96,7 +95,7 @@ local cbs = {
 function InputManager:_hook()
     for _, event in ipairs(cbs) do
         local oldCallback = love[event]
-        love[event] = function (...)
+        love[event] = function(...)
             if oldCallback then oldCallback(...) end
             self[event](self, ...)
         end
@@ -110,9 +109,8 @@ function InputManager.new()
     }
     o.hoverables = {}
     o.hovered = nil
-    -- o.cursorPending = nil
     o.pressed = nil
-    -- o:_hook()
+    o:_hook()
     return o
 end
 

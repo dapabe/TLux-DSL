@@ -54,18 +54,8 @@ end
 
 ---@param props? DLux.RectPrimitiveProps
 function Rect:new(props)
-    local o = setmetatable({}, Rect)
-    o._ElementName = "ElementPrimitive"
-    o.UINode = Yoga.Node.new()
-    props = props or {}
-    applyStyleProps(o.UINode.style, props)
-    o.debugOutline = props.debugOutline or false
-    o.bgColor = props.bgColor or { 0, 0, 0, 0 }
-    o.borderRadius = props.borderRadius or { 0, 0 }
-
-
-    o:_resetEventState()
-    InputManager:register(o)
+    local o = Rect.super.new(self, props)
+    o._ElementName = "RectPrimitive"
     return o
 end
 
